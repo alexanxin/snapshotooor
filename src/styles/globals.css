@@ -1,0 +1,94 @@
+@font-face {
+  font-family: "Gilroy";
+  font-weight: normal;
+  font-style: normal;
+  src: url("/Gilroy-ExtraBold.woff") format("woff");
+}
+
+/** Fractul SemiBold */
+@font-face {
+  font-family: "Gilroys";
+  font-weight: normal;
+  font-style: normal;
+  src: url("/Gilroy-Light.woff") format("woff");
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Gilroys", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+
+  background-color: #3e3e3e;
+  background-image: url('/bgg.jpg');
+
+}
+
+.recharts-wrapper {
+  margin: 0 auto;
+}
+
+@media only screen and (max-width: 960px) {
+  .recharts-wrapper text.title {
+    fill: white !important;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Gilroy" !important;
+  font-weight: 900;
+}
+
+h2 {
+  font-family: "Gilroy" !important;
+}
+
+.wallet-adapter-button-trigger {background: #4A868E !important;box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);}
+.export-button {font-weight: bold;padding: 10px 30px !important;position: absolute;top:610px;right: 10%;font-size: 20px;}
+.export-button:hover {background-color:#6ec2cd}
+
+.box {
+  border: 15px solid rgb(196 199 203 / 20%);
+  background-color: #ffffff1c !important;
+  backdrop-filter: blur(9px);
+  color:#fff;padding: 0;
+}
+.box h2 {color:#fff}
+.choose-another { 
+  background: #4A868E;
+  width: 100%;
+  font-size: 18px;
+  margin-top: 5px;
+  font-weight: 600;
+  padding: 10px;}
+  .choose-another:hover {background-color:#6ec2cd !important}
+  .fixed-width {width: 400px;background-color:#4A868E !important}
+
+.cancel { 
+  color: #4A868E;
+  border-color: #4A868E;
+  font-size: 18px;
+  margin-top: 5px;
+  font-weight: 600;
+  padding: 10px;}
+.cancel:hover {
+  border-color:#6ec2cd !important;
+  color: #6ec2cd !important;
+}
+
+@media only screen and (max-width: 600px) {
+.grid-mobile {max-width: none !important;width: 120px;-webkit-flex-basis:auto !important;flex-basis: auto !important;}
+/* .grid-mobile>div {width: 80px;} */
+.MuiFormLabel-root {color:#ffffff7e !important}
+.MuiOutlinedInput-notchedOutline {border-color: #ffffff7e !important;}
+}
