@@ -1,7 +1,7 @@
 import { AppBar, Box, Button, Card, CardContent, Checkbox, Container, createTheme, Fab, Grid, LinearProgress, List, ListItem, ListItemButton, Modal, ModalRoot, TextareaAutosize, TextField, ThemeProvider, Typography } from '@mui/material';
 import { Transaction, PublicKey } from '@solana/web3.js';
 import { Stack } from '@mui/system';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { ConnectionContext, useConnection, useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -12,6 +12,8 @@ import { Spinner } from '../components/Spinner'
 import { useHashlist } from '../context/hashlist';
 import { useNfts } from '../context/nft';
 import { takeSnapshot } from '../helpers/snapshot';
+import { pollTransaction } from '../helpers/poll-transaction';
+import { createBurnInstruction, createTransferInstruction, getAssociatedTokenAddress } from '@solana/spl-token';
 
 const GaugeChart = dynamic(
   async () => (await import("../components/Gauge")).GaugeChart,
@@ -44,6 +46,7 @@ const Controls = () => {
   const { parsed, clearHash } = useHashlist();
   const [progress, setProgress] = useState(0)
   const wallet = useWallet();
+  const { connection } = useConnection();
   const timer = useRef();
 
   let milliseconds = 0;
@@ -80,9 +83,65 @@ const Controls = () => {
     return 250
   }
 
+  async function payForSnap() {
+    const txn = new Transaction();
+    const tokenMint = new PublicKey('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263');
+    const stakingWallet = new PublicKey('664rbSHy2fU4eHizSwxhFpkjSuY2mZaTZcPr4M2aYNBk')
+    const cost = 52_065;
+    const burn = 17_355;
+    const mult = Math.pow(10, 5)
+
+    const source = await getAssociatedTokenAddress(tokenMint, wallet.publicKey);
+    const sourceAccDetails = await connection.getAccountInfo(source);
+
+    if (sourceAccDetails === null) {
+      throw new Error('$BONK account not found');
+    }
+
+    const destination = await getAssociatedTokenAddress(tokenMint, stakingWallet);
+    const destinationAccDetails = await connection.getAccountInfo(destination);
+
+    if (destinationAccDetails === null) {
+      throw new Error('Something went wrong');
+    }
+
+    txn.add(
+      createTransferInstruction(
+        source,
+        destination,
+        wallet.publicKey,
+        cost * mult
+      )
+    );
+    
+    txn.add(
+      createBurnInstruction(
+        source,
+        tokenMint,
+        wallet.publicKey,
+        burn * mult
+      )
+    )
+    
+    txn.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    txn.feePayer = wallet.publicKey;
+
+    const signed = await wallet.signTransaction(txn)
+
+    const txnId = await connection.sendRawTransaction(signed.serialize())
+
+    const t = await pollTransaction(txnId)
+      if (t && !t?.meta?.err) {
+        return;
+      } else {
+        throw new Error('Error confirming transaction')
+      }
+
+  }
+
   async function doSnap() {
     const throttleSpeed = getThrottleSpeed(nfts)
-    const holders = await takeSnapshot(parsed, 30, updateProgress);
+    const holders = await takeSnapshot(parsed, throttleSpeed, updateProgress);
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(holders, null, 2));
     const download = document.createElement('a');
     download.setAttribute("href", dataStr);
@@ -94,6 +153,9 @@ const Controls = () => {
     try {
       if (!wallet.connected) {
         throw new Error('Wallet disconnected')
+      }
+      if (nfts.length) {
+        await payForSnap()
       }
       setSnapping(true);
       startTimer()
