@@ -3,14 +3,15 @@ import toast from "react-hot-toast"
 
 const initial = {
   hashlist: '',
-  setHashlist: () => {},
-  clearHash: () => {}
+  setHashlist: (string: string) => {},
+  clearHash: () => {},
+  parsed: []
 }
 
 const HashlistContext = createContext(initial)
 
 export const HashlistProvider = ({ children }) => {
-  const [hashlist, setHashlist] = useState('');
+  const [hashlist, setHashlist] = useState<string>('');
   const [parsed, setParsed] = useState([]);
 
   useEffect(() => {
