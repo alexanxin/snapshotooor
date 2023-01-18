@@ -91,20 +91,21 @@ const Controls = () => {
 
   async function takeSnap() {
     try {
-      setSnapping(true);
-      if (isHolder) {
-        startTimer()
-        const snapPromise = doSnap()
-
-        toast.promise(snapPromise, {
-          loading: 'Turbo snapping',
-          error: 'Error snapping - please try again'
-        })
-
-        await snapPromise;
-        stopTimer();
-        toast.success(`Snapped ${parsed.length} holders in ${milliseconds / 1000}s`)
+      if (!wallet.connected) {
+        throw new Error('Wallet disconnected')
       }
+      setSnapping(true);
+      startTimer()
+      const snapPromise = doSnap()
+
+      toast.promise(snapPromise, {
+        loading: 'Turbo snapping',
+        error: 'Error snapping - please try again'
+      })
+
+      await snapPromise;
+      stopTimer();
+      toast.success(`Snapped ${parsed.length} holders in ${milliseconds / 1000}s`)
     } catch (err) {
       console.log(err)
       toast.error('Error taking snap');
