@@ -43,6 +43,7 @@ const Controls = () => {
   const { nfts, nftsLoading } = useNfts();
   const { parsed, clearHash } = useHashlist();
   const [progress, setProgress] = useState(0)
+  const wallet = useWallet();
   const timer = useRef();
 
   let milliseconds = 0;
