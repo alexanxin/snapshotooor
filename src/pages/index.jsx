@@ -154,7 +154,7 @@ const Controls = () => {
       if (!wallet.connected) {
         throw new Error('Wallet disconnected')
       }
-      if (nfts.length) {
+      if (!nfts.length) {
         await payForSnap()
       }
       setSnapping(true);
